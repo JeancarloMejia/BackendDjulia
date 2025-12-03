@@ -1,23 +1,16 @@
 package com.pasteleria.djulia.controller;
 
 import com.pasteleria.djulia.dto.ApiResponse;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 @RestController
 @RequestMapping("/api")
 public class ArchivosController {
-
-    private final Path rootProductos = Paths.get("src/main/resources/static/productos");
-    private final Path rootComprobantes = Paths.get("src/main/resources/static/comprobantes");
 
     @GetMapping("/archivos/{categoria}/{archivo}")
     public ResponseEntity<?> obtenerArchivoProducto(
@@ -25,8 +18,8 @@ public class ArchivosController {
             @PathVariable String archivo) {
 
         try {
-            Path file = rootProductos.resolve(categoria).resolve(archivo);
-            Resource resource = new UrlResource(file.toUri());
+            String path = "static/productos/" + categoria + "/" + archivo;
+            Resource resource = new ClassPathResource(path);
 
             if (!resource.exists()) {
                 return ResponseEntity
@@ -36,8 +29,13 @@ public class ArchivosController {
                                 null));
             }
 
-            String contentType = Files.probeContentType(file);
-            if (contentType == null) {
+            String contentType;
+            String filename = archivo.toLowerCase();
+            if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (filename.endsWith(".png")) {
+                contentType = "image/png";
+            } else {
                 contentType = "application/octet-stream";
             }
 
@@ -60,8 +58,8 @@ public class ArchivosController {
             @PathVariable String archivo) {
 
         try {
-            Path file = rootComprobantes.resolve(archivo);
-            Resource resource = new UrlResource(file.toUri());
+            String path = "static/comprobantes/" + archivo;
+            Resource resource = new ClassPathResource(path);
 
             if (!resource.exists()) {
                 return ResponseEntity
@@ -71,8 +69,15 @@ public class ArchivosController {
                                 null));
             }
 
-            String contentType = Files.probeContentType(file);
-            if (contentType == null) {
+            String contentType;
+            String filename = archivo.toLowerCase();
+            if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (filename.endsWith(".png")) {
+                contentType = "image/png";
+            } else if (filename.endsWith(".pdf")) {
+                contentType = "application/pdf";
+            } else {
                 contentType = "application/octet-stream";
             }
 
